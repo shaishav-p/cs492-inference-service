@@ -45,7 +45,9 @@ allFields_net.load_state_dict(torch.load('allFields_net.pt', map_location=torch.
 notProtectedFields_net.load_state_dict(torch.load('notProtectedFields_net.pt', map_location=torch.device('cpu')))
 
 
-
+# set logging level
+logging.basicConfig(level=logging.INFO)
+logging.info("(app.py) logging level set to INFO")
 
 app = Flask(__name__)
 
