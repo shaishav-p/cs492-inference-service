@@ -51,12 +51,14 @@ app = Flask(__name__)
 
 @app.route("/")
 def home():
+   logging.info("received request for endpoint: / ")
    return "Hello, Flask!"
 
 
 
 @app.route("/run-inference", methods=["GET", "POST"])
 def run_inference():
+   logging.info("received request for endpoint: /run-inference ")
 
    
    if request.method == "POST":
