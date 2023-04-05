@@ -6,6 +6,7 @@ import torch.nn as nn
 
 allFields_inputSize = 573
 notProtectedFields_inputSize = 559
+protectedFields_inputSize = 14
 
 allFields_net = nn.Sequential(nn.Linear(allFields_inputSize, 2048),
                         nn.LeakyReLU(),
@@ -39,10 +40,31 @@ notProtectedFields_net = nn.Sequential(nn.Linear(notProtectedFields_inputSize, 2
                         nn.LeakyReLU(),
                         nn.Linear(32,1))
 
+protectedFields_net = nn.Sequential(nn.Linear(protectedFields_inputSize, 2048),
+                        nn.LeakyReLU(),
+                        nn.Linear(2048, 1024),
+                        nn.LeakyReLU(),
+                        nn.Linear(1024, 512),
+                        nn.LeakyReLU(),
+                        nn.Linear(512, 256),
+                        nn.LeakyReLU(),
+                        nn.Linear(256, 128),
+                        nn.LeakyReLU(),
+                        nn.Linear(128, 64),
+                        nn.LeakyReLU(),
+                        nn.Linear(64,32),
+                        nn.LeakyReLU(),
+                        nn.Linear(32,1))
+
 
 # allFields_net.load_state_dict(torch.load("allFields_net.pt",map_location=torch.device('cpu')))
 allFields_net.load_state_dict(torch.load('allFields_net.pt', map_location=torch.device('cpu')))
 notProtectedFields_net.load_state_dict(torch.load('notProtectedFields_net.pt', map_location=torch.device('cpu')))
+protectedFields_net.load_state_dict(torch.load('protectedFields_net.pt', map_location=torch.device('cpu')))
+
+allFields_net.eval()
+notProtectedFields_net.eval()
+protectedFields_net.eval()
 
 
 # set logging level
@@ -67,12 +89,21 @@ def run_inference():
          # notProtectedFields_net.eval()
          # notProtectedFields_salary = nonProtectedFields_net()
 
-         # get the body of the request
          body = request.get_json()
 
-         # TODO: add validation for request body
+         with torch.no_grad():
+            d = constants.protectedFields
+            
+            for key in body:
+               d[key] = body[key]
 
-         # for key in body:
+            d = (list(d.values()))
+
+            output = protectedFields_net(torch.tensor(d, dtype=torch.float32))
+            
+         
+
+         return {"result": output.item()}
    
    if request.method == "GET":
        return "GET request received"
