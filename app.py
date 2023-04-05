@@ -79,7 +79,6 @@ def home():
    return "Hello, Flask!"
 
 
-
 @app.route("/run-inference", methods=["GET", "POST"])
 def run_inference():
    logging.info("received request for endpoint: /run-inference ")
@@ -91,19 +90,74 @@ def run_inference():
 
          body = request.get_json()
 
+
          with torch.no_grad():
-            d = constants.protectedFields
+            allFields = constants.allFields
+            notProtectedFields = constants.notProtectedFields
+            protectedFields = constants.protectedFields
+
+            def updateKeysAndValues(inferenceModelKey, inferenceModelVal):
+               
+               if inferenceModelKey in allFields:
+                  allFields[inferenceModelKey] = inferenceModelVal
+
+               if inferenceModelKey in notProtectedFields:
+                  notProtectedFields[inferenceModelKey] = inferenceModelVal
+
+               if inferenceModelKey in protectedFields:
+                  protectedFields[inferenceModelKey] = inferenceModelVal
             
             for key in body:
-               d[key] = body[key]
+               
+               # get key/values to update
+               inferenceModelKey = ""
+               inferenceModelVal = 0
+               if key == "AGE":
+                  inferenceModelKey = key
+                  inferenceModelVal = (body[key] - 43.65052) / 14.989378
 
-            d = (list(d.values()))
+               elif key == "WKSWORK1":
+                  inferenceModelKey = key
+                  inferenceModelVal = (body[key] - 47.11975) / 12.422507
 
-            output = protectedFields_net(torch.tensor(d, dtype=torch.float32))
+               elif key == "UHRSWORK":
+                  inferenceModelKey = key
+                  inferenceModelVal = (body[key] - 38.89632) / 12.446644
+
+               elif key == "TRANTIME":
+                  inferenceModelKey = key
+                  inferenceModelVal = (body[key] - 20.862526) / 22.125769
+
+               elif type(body[key]) == list:
+                  for val in body[key]:
+                     updateKeysAndValues(val, 1)
+                  continue
+                        
+               else:
+                  inferenceModelKey = body[key]
+                  inferenceModelVal = 1
+
+               updateKeysAndValues(inferenceModelKey, inferenceModelVal)
+               
+
+
+               
+
+            allFieldsList = list(allFields.values())
+            notProtectedFieldsList = list(notProtectedFields.values())
+            protectedFieldsList = list(protectedFields.values())
+
+            allFieldsOutput = allFields_net(torch.tensor(allFieldsList, dtype=torch.float32))
+            notProtectedFieldsOutput = notProtectedFields_net(torch.tensor(notProtectedFieldsList, dtype=torch.float32))
+            protectedFieldsOutput = protectedFields_net(torch.tensor(protectedFieldsList, dtype=torch.float32))
             
          
 
-         return {"result": output.item()}
+         return {
+            "allFields": allFieldsOutput.item(),
+            "notProtectedFields": notProtectedFieldsOutput.item(),
+            "protectedFields": protectedFieldsOutput.item()
+            }
    
    if request.method == "GET":
        return "GET request received"
