@@ -3,6 +3,7 @@ from flask import Flask, request
 import constants
 import torch
 import torch.nn as nn
+import copy
 
 allFields_inputSize = 573
 notProtectedFields_inputSize = 559
@@ -91,53 +92,52 @@ def run_inference():
          body = request.get_json()
 
 
-         with torch.no_grad():
-            allFields = constants.allFields
-            notProtectedFields = constants.notProtectedFields
-            protectedFields = constants.protectedFields
+         
+         allFields = copy.deepcopy(constants.allFields)
+         notProtectedFields = copy.deepcopy(constants.notProtectedFields)
+         protectedFields = copy.deepcopy(constants.protectedFields)
 
-            def updateKeysAndValues(inferenceModelKey, inferenceModelVal):
-               
-               if inferenceModelKey in allFields:
-                  allFields[inferenceModelKey] = inferenceModelVal
-
-               if inferenceModelKey in notProtectedFields:
-                  notProtectedFields[inferenceModelKey] = inferenceModelVal
-
-               if inferenceModelKey in protectedFields:
-                  protectedFields[inferenceModelKey] = inferenceModelVal
+         def updateKeysAndValues(inferenceModelKey, inferenceModelVal):
             
-            for key in body:
-               
-               # get key/values to update
-               inferenceModelKey = ""
-               inferenceModelVal = 0
-               if key == "AGE":
-                  inferenceModelKey = key
-                  inferenceModelVal = (body[key] - 43.65052) / 14.989378
+            if inferenceModelKey in allFields:
+               allFields[inferenceModelKey] = inferenceModelVal
 
-               elif key == "WKSWORK1":
-                  inferenceModelKey = key
-                  inferenceModelVal = (body[key] - 47.11975) / 12.422507
+            if inferenceModelKey in notProtectedFields:
+               notProtectedFields[inferenceModelKey] = inferenceModelVal
 
-               elif key == "UHRSWORK":
-                  inferenceModelKey = key
-                  inferenceModelVal = (body[key] - 38.89632) / 12.446644
+            if inferenceModelKey in protectedFields:
+               protectedFields[inferenceModelKey] = inferenceModelVal
+         
+         for key in body:
+            # get key/values to update
+            inferenceModelKey = ""
+            inferenceModelVal = 0
+            if key == "AGE":
+               inferenceModelKey = key
+               inferenceModelVal = (body[key] - 43.65052) / 14.989378
 
-               elif key == "TRANTIME":
-                  inferenceModelKey = key
-                  inferenceModelVal = (body[key] - 20.862526) / 22.125769
+            elif key == "WKSWORK1":
+               inferenceModelKey = key
+               inferenceModelVal = (body[key] - 47.11975) / 12.422507
 
-               elif type(body[key]) == list:
-                  for val in body[key]:
-                     updateKeysAndValues(val, 1)
-                  continue
-                        
-               else:
-                  inferenceModelKey = body[key]
-                  inferenceModelVal = 1
+            elif key == "UHRSWORK":
+               inferenceModelKey = key
+               inferenceModelVal = (body[key] - 38.89632) / 12.446644
 
-               updateKeysAndValues(inferenceModelKey, inferenceModelVal)
+            elif key == "TRANTIME":
+               inferenceModelKey = key
+               inferenceModelVal = (body[key] - 20.862526) / 22.125769
+
+            elif type(body[key]) == list:
+               for val in body[key]:
+                  updateKeysAndValues(val, 1)
+               continue
+                     
+            else:
+               inferenceModelKey = body[key]
+               inferenceModelVal = 1
+
+            updateKeysAndValues(inferenceModelKey, inferenceModelVal)
                
 
 
