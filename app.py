@@ -114,19 +114,19 @@ def run_inference():
             inferenceModelVal = 0
             if key == "AGE":
                inferenceModelKey = key
-               inferenceModelVal = (body[key] - 43.65052) / 14.989378
+               inferenceModelVal = (float(body[key]) - 43.65052) / 14.989378
 
             elif key == "WKSWORK1":
                inferenceModelKey = key
-               inferenceModelVal = (body[key] - 47.11975) / 12.422507
+               inferenceModelVal = (float(body[key]) - 47.11975) / 12.422507
 
             elif key == "UHRSWORK":
                inferenceModelKey = key
-               inferenceModelVal = (body[key] - 38.89632) / 12.446644
+               inferenceModelVal = (float(body[key]) - 38.89632) / 12.446644
 
             elif key == "TRANTIME":
                inferenceModelKey = key
-               inferenceModelVal = (body[key] - 20.862526) / 22.125769
+               inferenceModelVal = (float(body[key]) - 20.862526) / 22.125769
 
             elif type(body[key]) == list:
                for val in body[key]:
