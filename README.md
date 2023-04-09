@@ -1,4 +1,4 @@
-# CS 492 Inference Service
+# CS492 Inference Service
 This Python back-end application was created as part of the final project for CS492 (Social Implication of Computing) W23. Our final project's aim was to understand how biases can exist in ML models and to explore ways in which we can prevent biases in ML models.
 
 
