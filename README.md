@@ -19,8 +19,7 @@ This service accepts requests at `/run-inference` where the body must contain th
 
 ## Requirements
 If you do not already have Python 3.10.x installed, then please install it from [here](https://www.python.org/downloads/) .
-<br/>
-<br/>
+
 
 ## Getting Started (Locally)
 First, install the library dependencies for this project:
